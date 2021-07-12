@@ -1,6 +1,8 @@
 @SET PROJECT_DIR=%~dp0
 @IF "%PROJECT_DIR:~-1%" EQU "\" SET PROJECT_DIR=%PROJECT_DIR:~0,-1%
 
+@IF NOT EXIST "%M_BUILD_DIR%" SET BUILD_DIR=%PROJECT_DIR%\build
+
 @IF "%BUILD_DIR%" NEQ "" GOTO :skip_build_dir_setup
 
 @IF NOT EXIST "%M_BUILD_DIR%" GOTO :build_dir_not_defined
