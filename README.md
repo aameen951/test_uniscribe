@@ -95,11 +95,9 @@ of each character according to the rules of the script. After determining the fo
 get the substitution for that form from the GSUB table to substitute the character with the 
 glyph that corresponds to required form.
 
-I'll show examples of this in details for Arabic to make sure the concept is clear. However,
-each script has different rules.
+I'll show examples of this in details for Arabic to make sure the concept is clear. However, each script has different rules.
 
-In Arabic, letters connect with neighbors. Some letters connect with neighbors from both
-sides, some letters connect from one side, and some connect with neither sides.
+In Arabic, letters connect with neighbors. Some letters connect with neighbors from both sides, some letters connect from one side, and some connect with neither sides.
 
 The following table show some examples :
 
@@ -110,31 +108,25 @@ The following table show some examples :
 | One Side | ر | - | - | ـر |
 | Neither | ء | - | - | - |
 
-If a letter can connect from the right side and its neighbor on the right can connect with
-its left then the appropriate form will be selected for each one so they can connect with 
-each others as follows:
+If a letter can connect from the right side and its neighbor on the right can connect with its left then the appropriate form will be selected for each one so they can connect with each others as follows:
 
 | Can connect<br> from Right | Can connect<br> from both | Result |
 |:-:|:-:|:-:|
 | ر | ب | ب ر
 | ـر | بـ | بــر
 
-If a letter can connect from both sides and its neighbor on the right can connect with
-its left and its neighbor on the left can connect with its right then the appropriate form will be selected for each one so they can connect with each others as follows:
+If a letter can connect from both sides and its neighbor on the right can connect with its left and its neighbor on the left can connect with its right then the appropriate form will be selected for each one so they can connect with each others as follows:
 
 |Can connect<br> from Right | Can connect<br> from both | Can connect<br> from Both | Result |
 |:-:|:-:|:-:|:-:|
 |ر | ب | ح | ح ب ر
 |ـر | ـبـ | حـ | حــبــر
 
-That's actually shaping for Arabic. It is not that complicated. It's mostly about knowing
-this information, verifying that the output is correct, getting the right substitutions from
-the font and applying it correctly.
+That's actually shaping for Arabic. It is not that complicated. It's mostly about knowing this information, verifying that the output is correct, getting the right substitutions from the font and applying it correctly.
 
 Similarly, diacritics in Arabic have their rules and their positioning information are extracted from GPOS table inside TrueType or OpenType font.
 
-I will skip the examples for diacritics for now. If I study other scripts in details later
-I might add a separate section where I document shaping in details for each script and I will add examples for diacritics in details there. If you are reading this and would like to contribute information about your language please open an issue.
+I will skip the examples for diacritics for now. If I study other scripts in details later I might add a separate section where I document shaping in details for each script and I will add examples for diacritics in details there. If you are reading this and would like to contribute information about your language please open an issue.
 
 ### 3. Line Wrapping
 Line wrapping is very easy for LTR languages where mostly each character correspond to one glyph, you just add the glyph widths and kerning if it is available and wrap to the next line
@@ -155,7 +147,7 @@ This was one of the most confusing thing about multilingual text rendering which
 
 Here are the steps:
 
-# 1. The input
+## 1. The input
 The process operate on paragraphs. A paragraph is something that ends with a new line (and usually a period). The new line character doesn't have to be there but if it is there you don't have to remove it before entering the process.
 
 Another input to the process is the paragraph direction. Every editor has a paragraph direction. It is either LTR or RTL. The way you select the direction depends on the context. If you have a UI and the language is of the UI is English then you would set the paragraph direction to LTR. If your UI is Arabic you would set it to RTL. However, there is a third option which is to detect the direction from the paragraph itself. This is useful if your UI has a comment section where people can write anything in their language, in this case, you need to infer the paragraph direction from the comment itself instead of applying the paragraph direction of the interface. The Bidirectional Algorithm has description for the process of detecting the paragraph direction. Checkout the rules [P1, P2, P3](https://www.unicode.org/reports/tr9/#The_Paragraph_Level).
@@ -164,28 +156,28 @@ Setting a paragraph direction doesn't mean you can't mix two languages with diff
 
 Note, don't confuse text alignment with paragraph direction. Text alignment doesn't affect layout at all. It is simply whether to align the text to left hand side or the right hand side. Normally, in LTR languages the default text alignment is left and RTL languages it is right. However, you can change it to a different alignment (left, right, or center) without having to layout the paragraph again unlike paragraph direction.
 
-# 2. Processing:
+## 2. Processing:
 
-## 1. Apply the rules X1-X10, W1-W7, N0-N2, I1-I2 from the bidirectional algorithm on the paragraph.
+### 1. Apply the rules X1-X10, W1-W7, N0-N2, I1-I2 from the bidirectional algorithm on the paragraph.
 
 The bidirectional algorithm takes as input the paragraph unicode characters and the paragraph direction. After applying the X10 rule you will have and array of runs where each run has a single direction either RTL or LTR (it operates on embedding levels which a little bit more than just a direction). Rules W1-W7, N0-N2, and I1-I2 will operate on those runs and make further changes to the embedding levels. Now, you need to either update the runs according to the modified embedding levels, build them again or you might be able to apply the rules without building the runs and build them once at the end.
 
 At the end of the step, you would have a list of runs (array or linked list) each has one embedding level (or direction) and it must be maximal, meaning you can't have two consecutive runs with the same embedding level. In this case you need to merge them into one.
 
-## 2. Split runs if they contains more than one script.
+### 2. Split runs if they contains more than one script.
 
 If a run contains multiple scripts you need to split the run such that it doesn't contain more than one script. A script is writing system used by a language. A script is different from language since multiple languages can use the same script.
 
 For the data and information about this process checkout: [Unicode® Standard Annex #24
 UNICODE SCRIPT PROPERTY](http://www.unicode.org/reports/tr24/)
 
-## 3. Split runs further by style and font.
+### 3. Split runs further by style and font.
 
 If you have need to change the font face, font style (italic bold), or font size for ranges of text in the paragraph make sure you each run has one set of font properties by splitting runs as necessary.
 
 Even if you don't have style or font changes you need to make sure that the selected font actually support the script in that run and have glyphs for the characters inside. If the selected font doesn't you either have to find a fallback font for the run or ignore it. If you decide to ignore it then you would skip shaping for that run and characters would either appear unshaped or rendered as missing glyphs (outlined rectangles) depending on font.
 
-## 4. For each run apply shaping using the run script shaper.
+### 4. For each run apply shaping using the run script shaper.
 
 If the script of a run is a script that requires shaping then apply shaping for that run.
 
@@ -211,11 +203,11 @@ Each feature consist of simple substitution such as replace x with y or more com
 You can read more about shaping on MSDN on this [page](https://docs.microsoft.com/en-us/typography/script-development/standard).
 
 
-## 5. Extract glyphs metrics from the font.
+### 5. Extract glyphs metrics from the font.
 
 After shaping a run we can get metrics from the font about the text by using glyph IDs. 
 
-## 6. Line wrapping.
+### 6. Line wrapping.
 
 After extracting the metrics you can loop over runs in logical order not visual order. Logical order means the order in which unicode characters are layed out in memory before reordering by the bidirectional algorithm (actually reordering is not done by bidi yet). If the run width would fit on the line append the run to the line and move to the next run. If it doesn't fit then try to find break in the run and split the run.
 
@@ -223,7 +215,7 @@ If the line is empty and the run doesn't fit and there isn't any whitespace in t
 
 Unfortunately, if you end up splitting the run then you have to shape the splitted runs again.
 
-## 7. Apply the rules L1-L4 from the bidirectional algorithm on each line
+### 7. Apply the rules L1-L4 from the bidirectional algorithm on each line
 
 These rules will change the behavior of whitespace in certain cases and give you the visual order of the runs for the line in which they are supposed to be rendered.
 
