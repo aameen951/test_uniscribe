@@ -54,17 +54,22 @@ right to left (RTL) such as (Arabic, Urdu, Hebrew).
 
 This requires a process to determine how to render a paragraph that mixes between two languages. An example of this is the following:
 
+<pre>
     He says: "  السلام عليكم  ".
-    --------->  <-----------  ->
-       (1)           (2)      (3)
+    --------->  <----------  ->
+       (1)           (2)     (3)
+</pre>
 
 You might think that this would only be a problem if you mix two languages but that is not 
 correct because numbers in RTL languages are still written left to right:
 
+<pre>
 
-    عمره  35  عاماً
+    عمره   35  عاماً
     <---  -->  <---
-     (3)  (2)  (1)
+     (3)  (2)   (1)
+
+</pre>
 
 The Bidirectional Algorithm was developed by Unicode to process a paragraph and split it into
 parts called runs where each run contains characters with one direction. It tells you
@@ -81,23 +86,13 @@ The bidi algorithm actually does the following:
 You can learn more about it here: [Unicode Standard Annex #9 Unicode Bidirectional Algorithm](https://unicode.org/reports/tr9/).
 
 ## 2. Shaping
-You might be familiar with a similar concept in English called ligatures. Some fonts include
-custom glyph for a certain letters if they come after each other. For example, some font
-has a specific glyph for the letter `f` followed by the letter `i` where they are merged together. This is behavior is specified by the font using something called substitution.
-TrueType and OpenType fonts have a table called GSUB which includes rules that tells the 
-rendering engine if a specified pattern matches substitute multiple glyphs with one glyph, 
-one glyph with multiple glyphs, etc.
+You might be familiar with a similar concept in English called ligatures. Some fonts include custom glyphs for a certain letters if they come after each other. For example, some fonts have a specific glyph for the letters `fi` where they are merged together. This is behavior is specified by the font using something called a substitution. TrueType and OpenType fonts have a table called GSUB which includes rules that tells the rendering engine if a specified pattern matches then substitute multiple glyphs with one glyph or one glyph with multiple glyphs.
 
-Shaping is more complicated than that. The rendering engine have scanners (called Shapers)
-one for each language (script is the accurate term in this context). Depending on the script
-of the run, the rendering engine will apply the shaper on that run and determine the form
-of each character according to the rules of the script. After determining the form, it will
-get the substitution for that form from the GSUB table to substitute the character with the 
-glyph that corresponds to required form.
+Shaping is more complicated than that. The rendering engine have processes (called Shapers) one for each language (script is the accurate term in this context). Depending on the script of the run, the rendering engine will run the shaper on that run and determine the form of each character according to the rules of that script. After determining in which form it should be, it will get the substitution for that form from the GSUB table to substitute the character with the  glyph that corresponds to required form.
 
 I'll show examples of this in details for Arabic to make sure the concept is clear. However, each script has different rules.
 
-In Arabic, letters connect with neighbors. Some letters connect with neighbors from both sides, some letters connect from one side, and some connect with neither sides.
+In Arabic, letters connect with their neighbors. Some letters connect with its neighbors from both sides, some letters connect from one side, and some connect with neither sides.
 
 The following table show some examples :
 
