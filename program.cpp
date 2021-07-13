@@ -77,8 +77,19 @@ void layout_and_render_paragraph(LayoutContext *ctx, int *cursor_y_p, wchar_t *f
   if(data.font == NULL) {
     printf("Error: CreateFontW failed with %x\n", GetLastError());
   }
-
+  // for(int i=0; i<strlen(paragraph); i++) {
+  //   printf("%x ", paragraph[i]); 
+  // }
+  // printf("\n"); 
   auto paragraph_layout = layout_paragraph(ctx, &data, paragraph, max_line_width);
+  // for(auto run=paragraph_layout->first_line->first_run; run; run = run->next){
+  //   for(auto i=0; i<run->glyph_count; i++){
+  //     printf("%x ", run->glyphs[i]); 
+  //   }
+  // printf("| "); 
+  // }
+  // printf("\n"); 
+  // printf("\n"); 
   render_paragraph_outline(ctx->dc, outline_brush, x_start, *cursor_y_p, paragraph_layout, RenderAlignment_Left);
   render_paragraph(ctx->dc, x_start, cursor_y_p, paragraph_layout, RenderAlignment_Left);
   free_layout(paragraph_layout);
@@ -116,7 +127,7 @@ void render(HWND window, HDC dc) {
   // https://gist.github.com/hqhs/611881e119a55bf3f452b91dc6013c45
   // http://www.manythings.org/bilingual/
 
-  layout_and_render_paragraph(lctx, &cursor_y, L"Courier New", L"XXX XXX XXX");
+  // layout_and_render_paragraph(lctx, &cursor_y, L"Courier New", L"XXX XXX XXX");
   // layout_and_render_paragraph(lctx, &cursor_y, L"Courier New", L"السلام عليكم ورحمة الله وبركاته، كيف حالكم؟");
   // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"اَلسَّلاْم");
   // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"اَّلسَّسّسّْلامم َّ");
@@ -132,5 +143,12 @@ void render(HWND window, HDC dc) {
   // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"الله");
   // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"اَلَسَلََّامَّ عَّلَّيكم xxx xxx xxx xxx");
   // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"السلام عليكم");
+  // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"Hello World");
+  // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"car تعني سيارة.");
+  // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"\u202Bcar تعني سيارة.\u202C");
+  // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"السلام \t عليكم");
+  // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"Hello \t wow");
+  // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"Hello \t\t wow");
+  // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"Hello \t \t wow");
 
 }

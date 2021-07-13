@@ -137,6 +137,17 @@ I will skip the examples for diacritics for now. If I study other scripts in det
 I might add a separate section where I document shaping in details for each script and I will add examples for diacritics in details there. If you are reading this and would like to contribute information about your language please open an issue.
 
 ### 3. Line Wrapping
+Line wrapping is very easy for LTR languages where mostly each character correspond to one glyph, you just add the glyph widths and kerning if it is available and wrap to the next line
+when line size exceeds the limit.
+
+However, when working with bidirectional text and complex shaping it more involved. Line wrapping requires metrics to break long paragraphs. Metrics requires glyphs which means shaping and bidi must already be applied on the paragraph.
+
+During line wrapping you might need to split runs into multiple run to fit it on the line. 
+This means that shaping must be done again on the split runs.
+
+Although the bidi algorithm is applied at the beginning it is not actually done. The bidi
+algorithm includes processes that need to operate on lines (after wrapping is done) to
+give you the order in which the runs will appear on the line and .
 
 
 ## Putting it All Together

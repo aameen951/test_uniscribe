@@ -9,16 +9,10 @@ struct FindLineBreakResult {
   int char_count;
   int width;
 };
-FindLineBreakResult find_soft_break(LayoutContext *ctx, LayoutRun *run, int available_width) {
+FindLineBreakResult find_soft_break(LayoutContext *ctx, LayoutRun *run, SCRIPT_LOGATTR *log_attrs, int available_width) {
   FindLineBreakResult result = {};
 
   // try to find a char in the run to break the line at.
-  auto log_attrs = rb_ensure_size(ctx->log_attrs, run->char_count, SCRIPT_LOGATTR);
-  auto res = ScriptBreak(run->str_start, run->char_count, &run->analysis, log_attrs);
-  if(res != S_OK){
-    printf("Error: ScriptBreak failed %x\n", res);
-    return result;
-  }
 
   auto is_rtl = run->analysis.fRTL;
   auto g_idx = is_rtl ? run->glyph_count-1 : 0;
@@ -30,8 +24,8 @@ FindLineBreakResult find_soft_break(LayoutContext *ctx, LayoutRun *run, int avai
   // start from 1 because soft breaking on the first character is not useful and we don't 
   // want empty runs.
   for(auto char_idx=1; char_idx<run->char_count; char_idx++){
-
-    if(!log_attrs[char_idx].fSoftBreak)continue;
+    auto char_attr = log_attrs[char_idx];
+    if(!char_attr.fSoftBreak && !char_attr.fWhiteSpace)continue;
 
     // get the glyph for this char.
     auto char_glyph_idx = run->log_clusters[char_idx];
@@ -65,7 +59,7 @@ FindLineBreakResult find_soft_break(LayoutContext *ctx, LayoutRun *run, int avai
 // find_hard_break will break at the last character that fit on the line
 // regardless of what it is and it is guaranteed to return one characters
 // even if it exceeds the max_line_width.
-FindLineBreakResult find_hard_break(LayoutRun *run, int available_width){
+FindLineBreakResult find_hard_break(LayoutRun *run, SCRIPT_LOGATTR *log_attrs, int available_width){
   FindLineBreakResult result = {};
 
   // TODO: Are we allowed to split one cluster into multiple lines?
@@ -86,9 +80,9 @@ FindLineBreakResult find_hard_break(LayoutRun *run, int available_width){
     // get the width of this char.
     int char_width = 0;
     for(; glyph_idx != end; glyph_idx += increment) {
+      if(is_rtl ? glyph_idx < char_glyph_idx : glyph_idx > char_glyph_idx)break;
       auto glyph_advance = run->advances[glyph_idx];
       char_width += glyph_advance;
-      if(glyph_idx == char_glyph_idx)break;
     }
 
     if(
@@ -102,6 +96,13 @@ FindLineBreakResult find_hard_break(LayoutRun *run, int available_width){
     result.found = true;
     result.char_count = char_idx + 1;
     result.width = current_width;
+  }
+
+  if(result.found) {
+    // whitespaces are allowed to go over the maximum line width.
+    while(result.char_count < run->char_count && log_attrs[result.char_count].fWhiteSpace){
+      result.char_count++;
+    }
   }
 
   return result;
@@ -208,7 +209,7 @@ LayoutParagraph *layout_paragraph(LayoutContext *ctx, FontData *font_data, wchar
     if(res == E_OUTOFMEMORY) {
       // The guess was wrong double the size and try again.
       max_glyphs *= 2;
-      printf("max_glyphs increased to %d\n", max_glyphs);
+      // printf("max_glyphs increased to %d\n", max_glyphs);
       goto after_glyph_space_increase;
     } else if(res == USP_E_SCRIPT_NOT_IN_FONT) {
       // NOTE: Shaping requires information from the font to map characters to the right glyph form (The GSUB and GPOS tables in OpenType font).
@@ -281,18 +282,27 @@ LayoutParagraph *layout_paragraph(LayoutContext *ctx, FontData *font_data, wchar
       // after adding this run we should close the line.
       close_the_line = true;
 
+      auto log_attrs = rb_ensure_size(ctx->log_attrs, run->char_count, SCRIPT_LOGATTR);
+      auto res = ScriptBreak(run->str_start, run->char_count, &run->analysis, log_attrs);
+      if(res != S_OK){
+        printf("Error: ScriptBreak failed %x\n", res);
+        return result;
+      }
+
       // Find a convenient place to break the run.
-      auto soft_break_res = find_soft_break(ctx, run, max_line_width - line_width);
+      auto soft_break_res = find_soft_break(ctx, run, log_attrs, max_line_width - line_width);
       if(soft_break_res.found){
-        run->char_count = soft_break_res.char_count;
-        // we broke the run into two so we need shape the first part again.
-        goto shape_again;
+        if(soft_break_res.char_count < run->char_count) {
+          // we broke the run into two so we need shape the first part again.
+          run->char_count = soft_break_res.char_count;
+          goto shape_again;
+        }
       } else if(line_width == 0) {
 
         // If there wasn't a soft break and there is nothing on this line then we must
         // break it because it won't fit on any line and it would loop indefinitely.
 
-        auto hard_break_res = find_hard_break(run, max_line_width - line_width);
+        auto hard_break_res = find_hard_break(run, log_attrs, max_line_width - line_width);
 
         if(hard_break_res.char_count < run->char_count) {
           // We split the run into two so we need shape the first part again.

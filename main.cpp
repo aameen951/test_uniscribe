@@ -11,6 +11,38 @@
 #include "memory_leak.h"
 #include "program.cpp"
 
+void win32_render(HWND window, HDC window_dc){
+  auto client_rect = RECT{};
+  GetClientRect(window, &client_rect);
+  auto w = client_rect.right - client_rect.left;
+  auto h = client_rect.bottom - client_rect.top;
+
+  // Create a memory device context with a monochrome 1by1 pixels bitmap.
+  auto dc = CreateCompatibleDC(window_dc);
+
+  auto bitmap = CreateCompatibleBitmap(
+    window_dc, // Use the window HDC to get a bitmap with the correct color format.
+    w, h
+  );
+  SelectObject(dc, bitmap);
+
+  render(window, dc);
+
+  BitBlt(window_dc,
+    client_rect.left,
+    client_rect.top,
+    w,
+    h,
+    dc,
+    0,
+    0,
+    SRCCOPY
+  );
+
+  DeleteObject(bitmap);
+  DeleteDC(dc);
+}
+
 static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
 {
   LRESULT Result = 0;
@@ -40,14 +72,14 @@ static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM w_param, L
           pos_y -= GetKeyState(VK_SHIFT) & 0x8000 ? 10 : 1;
         }break;
       }
-      InvalidateRect(window, NULL, TRUE);
+      InvalidateRect(window, NULL, FALSE);
       UpdateWindow(window);
     }break;
 
     case WM_PAINT: {
       PAINTSTRUCT ps;
       HDC dc = BeginPaint(window, &ps);
-      render(window, dc);
+      win32_render(window, dc);
       EndPaint(window, &ps);
     } break;
 
@@ -95,7 +127,7 @@ int main() {
     if(!IsWindow(window))break;
 
     auto dc = GetDC(window);
-    render(window, dc);
+    win32_render(window, dc);
     ReleaseDC(window, dc);
   }
 
