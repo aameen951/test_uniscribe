@@ -1,8 +1,11 @@
 {
   "cSpell.words": [
     "Bidi",
+    "CMAP",
     "GPOS",
     "GSUB",
-    "Uniscribe"
+    "Uniscribe",
+    "codepoint",
+    "codepoints"
   ]
 }

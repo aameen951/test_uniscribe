@@ -142,7 +142,8 @@ void render(HWND window, HDC dc) {
   // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"Θέλεις να δοκιμάσεις;");
   // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"الله");
   // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"اَلَسَلََّامَّ عَّلَّيكم xxx xxx xxx xxx");
-  // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"السلام عليكم");
+  layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"السلام عليكم");
+  // layout_and_render_paragraph(lctx, &cursor_y, L"Sylfaen",       L"السلام عليكم");
   // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"Hello World");
   // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"car تعني سيارة.");
   // layout_and_render_paragraph(lctx, &cursor_y, L"Arial",       L"\u202Bcar تعني سيارة.\u202C");

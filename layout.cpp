@@ -217,7 +217,6 @@ LayoutParagraph *layout_paragraph(LayoutContext *ctx, FontData *font_data, wchar
       // TODO: The documentation is suggesting to try a list of different fonts until it succeeds which sounds very bad and slow. 
       // maybe we can use ScriptGetFontScriptTags to check if a font support the script.
       // TODO: Handle fallback font.
-      printf("Error: disabling shaping for run\n", res);
       run->analysis.eScript = SCRIPT_UNDEFINED;
       goto after_trying_different_font_or_turning_off_shaping;
     } else if(res != S_OK) {
@@ -359,9 +358,13 @@ LayoutParagraph *layout_paragraph(LayoutContext *ctx, FontData *font_data, wchar
     }
   }
 
+  // for(auto line=result->first_line; line; line = line->next) {
+  //   for(auto run=line->first_run; run; run = run->next) {
+  //     if(run
+  //   }
+  // }
+
   // Extract the visual order of the runs for each line from Uniscribe.
-  // It doesn't have to be a second pass over the lines but it makes the code a little
-  // bit cleaner.
   for(auto line=result->first_line; line; line = line->next) {
 
     // Uniscribe wants the embedding levels only for each run.
