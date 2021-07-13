@@ -54,22 +54,18 @@ right to left (RTL) such as (Arabic, Urdu, Hebrew).
 
 This requires a process to determine how to render a paragraph that mixes between two languages. An example of this is the following:
 
-<pre>
-    He says: "  السلام عليكم  ".
-    --------->  <----------  ->
-       (1)           (2)     (3)
-</pre>
+| (1) | (2) | (3) |
+|:-:|:-:|:-:|
+| He says: " | السـلام عليكم | ". |
+| `--------->` | `<----------` | `->` |
 
 You might think that this would only be a problem if you mix two languages but that is not 
 correct because numbers in RTL languages are still written left to right:
 
-<pre>
-
-    عمره   35  عاماً
-    <---  -->  <---
-     (3)  (2)   (1)
-
-</pre>
+| (3) | (2) | (1) |
+|:-:|:-:|:-:|
+| عاماً | 35 | عمره |
+| `<---`  | `-->` | `<---` |
 
 The Bidirectional Algorithm was developed by Unicode to process a paragraph and split it into
 parts called runs where each run contains characters with one direction. It tells you
