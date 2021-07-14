@@ -108,13 +108,11 @@ FindLineBreakResult find_hard_break(LayoutRun *run, SCRIPT_LOGATTR *log_attrs, i
   return result;
 }
 
-LayoutParagraph *layout_paragraph(LayoutContext *ctx, FontData *font_data, wchar_t *paragraph, int max_line_width) {
+LayoutParagraph *layout_paragraph(LayoutContext *ctx, FontData *font_data, wchar_t *paragraph, int paragraph_length, int max_line_width) {
   auto result = (LayoutParagraph *)calloc(1, sizeof(LayoutParagraph));
 
   // Font is used by Uniscribe for shaping, converting to glyphs and computing placements.
   SelectObject(ctx->dc, font_data->font);
-  
-  auto paragraph_length = strlen(paragraph);
   
   // Whether the paragraph direction is RTL or LTR.
   b32 is_rtl_paragraph = false;
@@ -358,6 +356,9 @@ LayoutParagraph *layout_paragraph(LayoutContext *ctx, FontData *font_data, wchar
     }
   }
 
+  // TODO: There still a missing step which is the L1 rule from Unicode bidi algorithm
+  // to reset whitespace at the end of the line. Unfortunately, it doesn't seem Uniscribe
+  // provide a way to do that. We have to do that ourselves.
   // for(auto line=result->first_line; line; line = line->next) {
   //   for(auto run=line->first_run; run; run = run->next) {
   //     if(run
@@ -397,14 +398,14 @@ LayoutParagraph *layout_paragraph(LayoutContext *ctx, FontData *font_data, wchar
   return result;
 }
 
-void render_paragraph(HDC dc, int pos_x, int *cursor_y_ptr, LayoutParagraph *p, RenderAlignment text_alignment) {
+void render_paragraph(HDC dc, int pos_x, int *cursor_y_ptr, u32 color, LayoutParagraph *p, RenderAlignment text_alignment) {
   int cursor_y = *cursor_y_ptr;
   
   // TODO: Implement text alignment.
   
   /// Drawing
   SetBkMode(dc, TRANSPARENT);
-  SetTextColor(dc, 0x0000ff);
+  SetTextColor(dc, color);
 
   // Loop over lines.
   for(auto line = p->first_line; line; line = line->next) {

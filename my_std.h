@@ -2,11 +2,11 @@
 #define D_MY_STD_H
 
 #include <stdio.h>
+#include <wchar.h>
 #include <Windows.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdarg.h>
-#include <windows.h>
 #include <usp10.h>
 
 typedef uint8_t   u8;

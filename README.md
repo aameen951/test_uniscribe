@@ -11,14 +11,19 @@ You must have the compiler in the path to be able to build the code or you can u
 You can build the code by simply running the `cc.bat` script.
 
 ## Running The Code
-The executable will be in the `build` directory inside the project folder. 
+The executable will be in the `build` directory inside the project folder. You can run it directly or use the script `run.bat`.
 
-You can also run the application by running the script `run.bat`.
+The program will start by rendering pre-chosen paragraphs for testing.
 
-The program will render test paragraphs that are baked inside the source code. You can change them by modifying the source code and building it again.
+You type on the keyboard any string you want and it will be rendered in realtime. You can press <kbd>enter</kbd> to go to the  next paragraph. You can use the <kbd>backspace</kbd> to delete characters.
 
-You can use the `Up` and `Down` arrow keys to scroll vertically.
-You can use the `Left` and `Right` arrow keys to change the maximum width used for laying out the paragraph to experiment with line-wrapping.
+You can use the <kbd>↑</kbd> and <kbd>↓</kbd>  keys to scroll vertically (Hold <kbd>shift</kbd> to scroll faster).
+
+You can use the <kbd>←</kbd> and <kbd>→</kbd> keys to change the maximum width used for laying out the paragraph to experiment with line-wrapping (Hold <kbd>shift</kbd> resize faster).
+
+You can use the <kbd>Ctrl</kbd>+<kbd>+</kbd> and <kbd>Ctrl</kbd>+<kbd>-</kbd> shortcuts to change the font size.
+
+You can use the <kbd>Ctrl</kbd>+<kbd>*</kbd> and <kbd>Ctrl</kbd>+<kbd>/</kbd> shortcuts to cycle through a predefined list of fonts.
 
 # What is going on with Multilingual Text Rendering?!
 

@@ -61,7 +61,7 @@ enum RenderAlignment {
 // Bidirectional Algorithm for mixed Left-to-Right and Right-to-Left text. This function 
 // only need to be called once every time the paragraph or the available width changes.
 // This function uses the Windows Uniscribe API.
-LayoutParagraph *layout_paragraph(LayoutContext *ctx, FontData *font_data, wchar_t *paragraph, int max_line_width);
+LayoutParagraph *layout_paragraph(LayoutContext *ctx, FontData *font_data, wchar_t *paragraph, int paragraph_length, int max_line_width);
 
 // This function takes an already layed out paragraph with Uniscribe and renders it.
 // It is usually called every frame.
@@ -70,4 +70,4 @@ LayoutParagraph *layout_paragraph(LayoutContext *ctx, FontData *font_data, wchar
 // placement information is provided by the layout process, the glyphs are already shaped
 // correctly and provided in the visual order that they supposed to drawn on the line and
 // long texts are correctly wrapped into multiple lines.
-void render_paragraph(HDC dc, int pos_x, int *cursor_y_ptr, LayoutParagraph *p, RenderAlignment text_alignment);
+void render_paragraph(HDC dc, int pos_x, int *cursor_y_ptr, u32 color, LayoutParagraph *p, RenderAlignment text_alignment);

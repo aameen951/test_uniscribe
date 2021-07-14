@@ -1,7 +1,6 @@
 #define COBJMACROS
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
-#define _NO_CRT_STDIO_INLINE
 
 #include "my_std.h"
 
@@ -43,17 +42,14 @@ void win32_render(HWND window, HDC window_dc){
   DeleteDC(dc);
 }
 
-static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
-{
-  LRESULT Result = 0;
+static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
+  LRESULT result = 0;
 
-  switch (message)
-  {
+  switch (message) {
     case WM_CLOSE: {
       DestroyWindow(window);
     }break;
-    case WM_DESTROY:
-    {
+    case WM_DESTROY: {
       PostQuitMessage(0);
     } break;
 
@@ -71,10 +67,40 @@ static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM w_param, L
         case VK_DOWN: {
           pos_y -= GetKeyState(VK_SHIFT) & 0x8000 ? 10 : 1;
         }break;
+        case VK_DIVIDE: {
+          set_previous_font();
+        }break;
+        case VK_MULTIPLY: {
+          set_next_font();
+        }break;
+        case VK_ADD: {
+          if(GetKeyState(VK_CONTROL) & 0x8000) {
+            increase_font_size();
+          }
+        }break;
+        case VK_SUBTRACT: {
+          if(GetKeyState(VK_CONTROL) & 0x8000) {
+            decrease_font_size();
+          }
+        }break;
       }
       InvalidateRect(window, NULL, FALSE);
       UpdateWindow(window);
     }break;
+
+    case WM_CHAR: {
+      switch(w_param) {
+        case VK_BACK: {
+          backspace_command();
+        }break;
+        case VK_RETURN: {
+          enter_command();
+        }break;
+        default: {
+          str_command((wchar_t) w_param);
+        }break;
+      }
+    } break;
 
     case WM_PAINT: {
       PAINTSTRUCT ps;
@@ -83,13 +109,12 @@ static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM w_param, L
       EndPaint(window, &ps);
     } break;
 
-    default:
-    {
-      Result = DefWindowProcW(window, message, w_param, l_param);
+    default: {
+      result = DefWindowProcW(window, message, w_param, l_param);
     } break;
   }
 
-  return Result;
+  return result;
 }
 
 int main() {
@@ -105,9 +130,9 @@ int main() {
   HWND window = {};
   if(RegisterClassExW(&window_class))
   {
-    DWORD ExStyle = WS_EX_APPWINDOW;
+    DWORD ex_style = WS_EX_APPWINDOW;
     window = CreateWindowExW(
-      ExStyle, window_class.lpszClassName, L"Test Uniscribe", WS_OVERLAPPEDWINDOW,
+      ex_style, window_class.lpszClassName, L"Test Uniscribe", WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
       0, 0, window_class.hInstance, 0
     );
